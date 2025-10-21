@@ -1,0 +1,108 @@
+name: baselibs-fork-sync
+
+on:
+  workflow_call:
+    inputs:
+      upstream_repo:
+        type: string
+        description: 'Upstream repository (owner/repo), e.g. eclipse-score/baselibs'
+        required: true
+        default: 'eclipse-score/baselibs'
+      upstream_branch:
+        type: string
+        description: 'Branch on upstream to sync from'
+        required: true
+        default: 'main'
+      target_branch:
+        type: string
+        description: 'Branch on this fork to update'
+        required: true
+        default: 'main'
+      use_sync_token:
+        type: string
+        description: 'Set to "true" to use the SYNC_TOKEN secret (PAT) for pushing (useful for protected branches)'
+        required: false
+        default: 'false'
+  workflow_dispatch:
+    inputs:
+      upstream_repo:
+        description: 'Upstream repository (owner/repo), e.g. eclipse-score/baselibs'
+        required: true
+        default: 'eclipse-score/baselibs'
+      upstream_branch:
+        description: 'Branch on upstream to sync from'
+        required: true
+        default: 'main'
+      target_branch:
+        description: 'Branch on this fork to update'
+        required: true
+        default: 'main'
+      use_sync_token:
+        description: 'Set to "true" to use the SYNC_TOKEN secret (PAT) for pushing (useful for protected branches)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote and fetch
+        run: |
+          echo "Adding upstream remote: ${{ inputs.upstream_repo || github.event.inputs.upstream_repo }}"
+          git remote add upstream https://github.com/${{ inputs.upstream_repo || github.event.inputs.upstream_repo }}.git || git remote set-url upstream https://github.com/${{ inputs.upstream_repo || github.event.inputs.upstream_repo }}.git
+          git fetch --prune upstream
+
+      - name: Checkout target branch
+        run: |
+          git checkout -B "${{ inputs.target_branch || github.event.inputs.target_branch }}" "origin/${{ inputs.target_branch || github.event.inputs.target_branch }}" || git checkout -B "${{ inputs.target_branch || github.event.inputs.target_branch }}"
+
+      - name: Rebase onto upstream branch
+        id: rebase
+        run: |
+          set -o pipefail
+          echo "Fetching upstream/${{ inputs.upstream_branch || github.event.inputs.upstream_branch }}..."
+          git fetch upstream "${{ inputs.upstream_branch || github.event.inputs.upstream_branch }}":"refs/remotes/upstream/${{ inputs.upstream_branch || github.event.inputs.upstream_branch }}"
+          echo "Starting rebase of ${GITHUB_REF} onto upstream/${{ inputs.upstream_branch || github.event.inputs.upstream_branch }}..."
+          if git rebase "upstream/${{ inputs.upstream_branch || github.event.inputs.upstream_branch }}"; then
+            echo "Rebase completed successfully."
+          else
+            echo "Rebase failed. Attempting to collect information and abort."
+            git rebase --abort || true
+            echo "Conflict during rebase. Exiting with failure so you can resolve manually."
+            exit 1
+          fi
+
+      - name: Push changes back to fork (force-with-lease)
+        env:
+          TARGET_BRANCH: ${{ inputs.target_branch || github.event.inputs.target_branch }}
+          USE_SYNC_TOKEN: ${{ inputs.use_sync_token || github.event.inputs.use_sync_token }}
+        run: |
+          echo "Pushing rebased branch to origin/${TARGET_BRANCH}..."
+          if [ "${USE_SYNC_TOKEN}" = "true" ]; then
+            if [ -z "${{ secrets.SYNC_TOKEN }}" ]; then
+              echo "ERROR: use_sync_token=true but SYNC_TOKEN secret is not set."
+              exit 1
+            fi
+            # Use the provided token to push (safe for protected branches requiring a PAT)
+            git push "https://${{ secrets.SYNC_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:"${TARGET_BRANCH}" --force-with-lease
+          else
+            # Using the default checkout credentials (GITHUB_TOKEN)
+            git push origin HEAD:"${TARGET_BRANCH}" --force-with-lease
+          fi
+
+      - name: Success message
+        if: ${{ success() }}
+        run: echo "Upstream ${GITHUB_EVENT_PATH:+(from inputs)}${{ inputs.upstream_repo || github.event.inputs.upstream_repo }}:${{ inputs.upstream_branch || github.event.inputs.upstream_branch }} successfully rebased into ${GITHUB_REPOSITORY}:${{ inputs.target_branch || github.event.inputs.target_branch }}."

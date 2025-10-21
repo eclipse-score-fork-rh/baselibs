@@ -1,0 +1,19 @@
+name: baselibs-fork-sync-nightly
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-main:
+    uses: ./.github/workflows/fork_sync.yml
+    with:
+      upstream_repo: eclipse-score/baselibs
+      upstream_branch: main
+      target_branch: main
+      use_sync_token: false

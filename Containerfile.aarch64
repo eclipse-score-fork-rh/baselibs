@@ -1,0 +1,38 @@
+FROM quay.io/centos/centos:stream10
+
+ARG BAZEL_VERSION=8.3.1
+
+RUN dnf config-manager --set-enabled crb
+
+RUN dnf update -y && \
+    dnf install -y \
+        wget \
+        ca-certificates \
+        unzip \
+        tar \
+        xz \
+        which \
+        gcc \
+        gcc-c++ \
+        libstdc++ \
+        libstdc++-devel \
+        libstdc++-static \
+        libatomic \
+        protobuf-compiler \
+        protobuf-devel \
+        rpm \
+        cpio \
+        java-21-openjdk-devel \
+        git \
+        rpm-build
+
+RUN wget https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-linux-arm64 && \
+    chmod +x bazel-${BAZEL_VERSION}-linux-arm64 && \
+    mv bazel-${BAZEL_VERSION}-linux-arm64 /usr/local/bin/bazel && \
+    mkdir /app
+
+# Verify installation
+RUN bazel --help
+
+WORKDIR /app
+CMD ["/bin/bash"]

@@ -113,7 +113,7 @@ TYPED_TEST_P(ParserTest, CanParseObjectString)
     auto root = TypeParam::FromBuffer(buffer_simple_json);
 
     // When reading a key of an object that is interpreted as std::string
-    auto& value = GetValueOfObject<std::string>(root.value(), "color");
+    auto value = GetValueOfObject<std::string>(root.value(), "color");
 
     // Then the correct value is returned
     EXPECT_EQ(value, "gold");
@@ -132,7 +132,7 @@ TYPED_TEST_P(ParserTest, CanParseObjectNull)
     auto root = TypeParam::FromBuffer(buffer_simple_json);
 
     // When reading a key of an object that is interpreted as Null
-    auto& value = GetValueOfObject<Null>(root.value(), "null");
+    auto value = GetValueOfObject<Null>(root.value(), "null");
 
     // Then the correct value is returned
     EXPECT_EQ(value, Null{});
@@ -194,7 +194,11 @@ TYPED_TEST_P(ParserTest, CanParseObjectInObject)
     auto root = TypeParam::FromBuffer(buffer_simple_json);
 
     // When reading a key of an object that is interpreted as number
-    auto& value = GetValueOfObject<Object>(root.value(), "object");
+    auto root_object_result = root.value().template As<Object>();
+    auto& root_object = root_object_result.value().get();
+    const auto& nested_any = root_object.at("object");
+    auto nested_object_result = nested_any.template As<Object>();
+    const auto& value = nested_object_result.value().get();
 
     // Then the correct value is returned
     EXPECT_EQ(value.at("a").template As<std::string>().value().get(), "b");
@@ -213,7 +217,11 @@ TYPED_TEST_P(ParserTest, CanParseListInObject)
     auto root = TypeParam::FromBuffer(buffer_simple_json);
 
     // When reading a key of an object that is interpreted as number
-    auto& value = GetValueOfObject<List>(*root, "list");
+    auto root_object_result = root->template As<Object>();
+    auto& root_object = root_object_result.value().get();
+    const auto& list_any = root_object.at("list");
+    auto list_result = list_any.template As<List>();
+    const auto& value = list_result.value().get();
 
     // Then the correct value is returned
     EXPECT_EQ(value[0].template As<std::string>().value().get(), "first");
@@ -258,9 +266,13 @@ TYPED_TEST_P(ParserTest, CanParseObjectInObjectAndIterateOverKeys)
     auto root = TypeParam::FromBuffer(buffer);
 
     // When iterating over the unknown keys
-    const auto& storage_list = root.value().template As<Object>().value().get()["storage_list"];
+    auto root_object_result = root.value().template As<Object>();
+    auto& root_object = root_object_result.value().get();
+    const auto& storage_list_any = root_object["storage_list"];
+    auto storage_obj_result = storage_list_any.template As<Object>();
+    auto& storage_obj = storage_obj_result.value().get();
     std::vector<std::string> collected_paths{};
-    for (const auto& element : storage_list.template As<Object>().value().get())
+    for (const auto& element : storage_obj)
     {
         collected_paths.push_back(
             element.second.template As<Object>().value().get().at("path").template As<std::string>().value().get());

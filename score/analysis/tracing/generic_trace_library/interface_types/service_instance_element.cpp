@@ -44,15 +44,15 @@ ServiceInstanceElement::ServiceInstanceElement(ServiceIdType input_service_id,
 {
     if (std::holds_alternative<EventId>(input_element_id))
     {
-        element_id = VariantType{score::cpp::in_place_type<EventIdType>, std::get<EventId>(input_element_id).value};
+        element_id = VariantType{score::cpp::in_place_index<kEventIdIndex>, std::get<EventId>(input_element_id).value};
     }
     else if (std::holds_alternative<FieldId>(input_element_id))
     {
-        element_id = VariantType{score::cpp::in_place_type<FieldIdType>, std::get<FieldId>(input_element_id).value};
+        element_id = VariantType{score::cpp::in_place_index<kFieldIdIndex>, std::get<FieldId>(input_element_id).value};
     }
     else
     {
-        element_id = VariantType{score::cpp::in_place_type<MethodIdType>, std::get<MethodId>(input_element_id).value};
+        element_id = VariantType{score::cpp::in_place_index<kMethodIdIndex>, std::get<MethodId>(input_element_id).value};
     }
 }
 

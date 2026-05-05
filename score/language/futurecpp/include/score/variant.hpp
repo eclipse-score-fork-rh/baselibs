@@ -474,6 +474,20 @@ public:
         static_cast<void>(::new (score::cpp::data(storage_)) score::cpp::remove_cvref_t<U>(std::forward<Args>(args)...));
     }
 
+    /// \brief Construct a variant using index-based initialization.
+    ///
+    /// This constructor is useful when all variant alternatives have the same type.
+    template <std::size_t I,
+              typename... Args,
+              typename = typename std::enable_if<(I < sizeof...(T)) &&
+                                                 std::is_constructible<typename std::tuple_element<I, alternative_types>::type, Args...>::value>::type>
+    constexpr explicit variant(score::cpp::in_place_index_t<I>, Args&&... args)
+        : index_{static_cast<std::ptrdiff_t>(I)}
+    {
+        using SelectedType = typename std::tuple_element<I, alternative_types>::type;
+        static_cast<void>(::new (score::cpp::data(storage_)) SelectedType(std::forward<Args>(args)...));
+    }
+
     /// \brief Destruct the variant and the containing object.
     ~variant() { score::cpp::visit(detail::destruct{}, *this); }
 

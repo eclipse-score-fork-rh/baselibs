@@ -48,6 +48,21 @@ gcc.toolchain(
     use_default_package = True,
     version = "12.2.0",
 )
+## AutoSD10 Toolchain
+gcc.toolchain(
+    name = "score_autosd10_x86_64_toolchain",
+    runtime_ecosystem = "autosd10",
+    target_cpu = "x86_64",
+    target_os = "linux",
+    use_default_package = True,
+)
+gcc.toolchain(
+    name = "score_autosd10_aarch64_toolchain",
+    runtime_ecosystem = "autosd10",
+    target_cpu = "aarch64",
+    target_os = "linux",
+    use_default_package = True,
+)
 use_repo(
     gcc,
     "score_gcc_aarch64_toolchain",
@@ -56,6 +71,8 @@ use_repo(
     "score_qcc_aarch64_toolchain_pkg",
     "score_qcc_x86_64_toolchain",
     "score_qcc_x86_64_toolchain_pkg",
+    "score_autosd10_aarch64_toolchain",
+    "score_autosd10_x86_64_toolchain",
 )
 
 bazel_dep(name = "score_rules_imagefs", version = "0.0.3", dev_dependency = True)
@@ -119,6 +136,7 @@ bazel_dep(name = "aspect_rules_lint", version = "2.3.0", dev_dependency = True)
 bazel_dep(name = "score_bazel_tools_cc", version = "0.1.0", dev_dependency = True)
 bazel_dep(name = "score_qnx_unit_tests", version = "0.1.0", dev_dependency = True)
 bazel_dep(name = "toolchains_llvm", version = "1.4.0", dev_dependency = True)
+bazel_dep(name = "score_toolchains_rust", version = "0.9.1", dev_dependency = True)
 
 llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", dev_dependency = True)
 llvm.toolchain(

@@ -106,3 +106,23 @@ build:clang_tidy --force_pic
 build:clang_tidy --incompatible_enable_cc_toolchain_resolution
 build:clang_tidy --output_groups=clang_tidy_output
 build:clang_tidy --verbose_failures
+
+# -------------------------------------------------------------------------------
+# Config dedicated to host platform CPU:x86_64 and OS:AutoSD
+# -------------------------------------------------------------------------------
+build:x86_64-autosd --config=_bl_stub
+build:x86_64-autosd --config=_bl_toolchain_common
+build:x86_64-autosd --force_pic
+build:x86_64-autosd --platforms=@score_bazel_platforms//:x86_64-linux-autosd10
+build:x86_64-autosd --extra_toolchains=@score_autosd10_x86_64_toolchain//:x86_64-linux-autosd10
+build:x86_64-autosd --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_unknown_linux_gnu
+
+# -------------------------------------------------------------------------------
+# Config dedicated to host platform CPU:aarch64 and OS:AutoSD
+# -------------------------------------------------------------------------------
+build:aarch64-autosd --config=_bl_stub
+build:aarch64-autosd --config=_bl_toolchain_common
+build:aarch64-autosd --force_pic
+build:aarch64-autosd --platforms=@score_bazel_platforms//:aarch64-linux-autosd10
+build:aarch64-autosd --extra_toolchains=@score_autosd10_aarch64_toolchain//:aarch64-linux-autosd10
+build:aarch64-autosd --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_linux_gnu

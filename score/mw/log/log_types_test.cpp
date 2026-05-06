@@ -21,6 +21,10 @@
 #include <string>
 #include <string_view>
 
+// Suppress deprecation warnings for tests of the deprecated LogStr API
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 namespace score
 {
 namespace mw
@@ -202,6 +206,8 @@ TEST(MakeLogRawBufferTest, MakeBufferFromVector)
 }
 
 }  // namespace
+
+#pragma GCC diagnostic pop
 
 }  // namespace log
 }  // namespace mw

@@ -15,6 +15,10 @@
 #include "score/concurrency/clock.h"
 #include "score/concurrency/interruptible_conditional_variable_mock.h"
 
+// Suppress deprecation warnings for tests of the deprecated API
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -168,6 +172,8 @@ TEST_F(DelayedTaskTest, MakeWithTaskResultCapturesAllArguments)
     ASSERT_TRUE(unit.first.Valid());
     EXPECT_TRUE(unit.first.Get());
 }
+
+#pragma GCC diagnostic pop
 
 }  // namespace
 }  // namespace concurrency

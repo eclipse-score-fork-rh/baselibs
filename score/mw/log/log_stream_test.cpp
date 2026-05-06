@@ -10,6 +10,12 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
+
+// Suppress deprecation warnings for tests of deprecated APIs (LogStr, char* logging)
+// Must be before includes since warnings come from template instantiations in headers
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include "score/mw/log/log_stream.h"
 
 #include "score/mw/log/log_stream_factory.h"
@@ -1001,6 +1007,8 @@ TEST_F(LogStreamFixture, UsesFallbackRecorderWithinOtherRecorder)
 
     // Then the recorder_mock is only invoked once, not multiple times.
 }
+
+#pragma GCC diagnostic pop
 
 }  // namespace
 }  // namespace log

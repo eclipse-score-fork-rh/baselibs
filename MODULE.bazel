@@ -140,15 +140,17 @@ bazel_dep(name = "score_toolchains_rust", version = "0.9.1", dev_dependency = Tr
 
 llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", dev_dependency = True)
 llvm.toolchain(
-    llvm_version = "19.1.1",
+    llvm_version = "18.1.8",
     stdlib = {"linux-x86_64": "stdc++"},
 )
 use_repo(llvm, "llvm_toolchain")
 
-register_toolchains(
-    "@llvm_toolchain//:all",
-    dev_dependency = True,
-)
+# LLVM toolchain registration disabled - use GCC toolchains from configs instead
+# Only needed for specific tools like clang-tidy which explicitly reference it
+# register_toolchains(
+#     "@llvm_toolchain//:all",
+#     dev_dependency = True,
+# )
 
 deb = use_repo_rule("@download_utils//download/deb:defs.bzl", "download_deb")
 

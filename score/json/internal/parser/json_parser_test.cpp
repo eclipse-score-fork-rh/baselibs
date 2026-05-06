@@ -15,8 +15,10 @@
 #include <gtest/gtest.h>
 
 #include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <iostream>
+#include <unistd.h>
 
 namespace score
 {
@@ -27,6 +29,19 @@ namespace
 
 #define JSON_INPUT R"({ "num": 1, "string": "foo" })"
 #define JSON_ERROR_INPUT R"({"something"})"
+
+// Helper function to create a temporary file path safely
+std::string create_temp_file_path()
+{
+    char temp_template[] = "/tmp/json_test_XXXXXX";
+    int fd = mkstemp(temp_template);
+    if (fd == -1)
+    {
+        throw std::runtime_error("Failed to create temporary file");
+    }
+    close(fd);
+    return std::string(temp_template);
+}
 
 void json_verify(const score::json::Any& parsed_json)
 {
@@ -99,7 +114,7 @@ TEST(JsonParserTest, FromFileSuceess)
     RecordProperty("DerivationTechnique", "equivalence-classes"); // boundary values
     RecordProperty("Priority", "3");
 
-    const std::string file_path = std::tmpnam(nullptr);
+    const std::string file_path = create_temp_file_path();
     std::ofstream file(file_path);
     if (file.is_open())
     {
@@ -122,7 +137,7 @@ TEST(JsonParserTest, FromFileParseError)
     RecordProperty("DerivationTechnique", "error-guessing");
     RecordProperty("Priority", "3");
 
-    const std::string file_path = std::tmpnam(nullptr);
+    const std::string file_path = create_temp_file_path();
     std::ofstream file(file_path);
     if (file.is_open())
     {

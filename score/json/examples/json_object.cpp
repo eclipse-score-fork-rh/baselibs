@@ -46,7 +46,7 @@ int main()
     {
         if (element.second.As<std::string>().has_value())
         {
-            score::mw::log::LogInfo() << element.first.GetAsStringView().data()                   // key
+            score::mw::log::LogInfo() << element.first.GetAsStringView()                          // key
                                     << ": " << element.second.As<std::string>().value().get();  // value
         }
     }

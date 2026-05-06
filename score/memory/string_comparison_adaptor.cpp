@@ -46,9 +46,9 @@ StringComparisonAdaptor& StringComparisonAdaptor::operator=(const std::string_vi
     return *this;
 }
 
-StringComparisonAdaptor::StringComparisonAdaptor(const score::StringLiteral& c_str) : str_{c_str} {}
+StringComparisonAdaptor::StringComparisonAdaptor(const char* c_str) : str_{c_str} {}
 
-StringComparisonAdaptor& StringComparisonAdaptor::operator=(const score::StringLiteral& c_str)
+StringComparisonAdaptor& StringComparisonAdaptor::operator=(const char* c_str)
 {
     str_ = c_str;
     return *this;
@@ -70,7 +70,7 @@ score::cpp::string_view StringComparisonAdaptor::GetAsStringView() const noexcep
                           [](const std::string& variant) noexcept {
                               return score::cpp::string_view{variant};
                           },
-                          [](const score::StringLiteral& variant) noexcept {
+                          [](const char* variant) noexcept {
                               return score::cpp::string_view{variant};
                           }),
                       str_);

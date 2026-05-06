@@ -15,7 +15,6 @@
 #include "score/callback.hpp"
 #include "score/json/json_parser.h"
 #include "score/memory/split_string_view.h"
-#include "score/memory/string_literal.h"
 #include "score/mw/log/detail/error.h"
 #include "score/mw/log/detail/initialization_reporter.h"
 
@@ -33,22 +32,22 @@ namespace detail
 namespace
 {
 
-constexpr StringLiteral kEcuIdKey{"ecuId"};
-constexpr StringLiteral kAppIdKey{"appId"};
-constexpr StringLiteral kAppDescriptionKey{"appDesc"};
-constexpr StringLiteral kLogFilePathKey{"logFilePath"};
-constexpr StringLiteral kLogModeKey{"logMode"};
-constexpr StringLiteral kLogLevelKey{"logLevel"};
-constexpr StringLiteral kLogLevelThresholdConsoleKey{"logLevelThresholdConsole"};
-constexpr StringLiteral kContextConfigsKey{"contextConfigs"};
-constexpr StringLiteral kContextNameKey{"name"};
-constexpr StringLiteral kStackBufferSizeKey{"stackBufferSize"};
-constexpr StringLiteral kRingBufferSizeKey{"ringBufferSize"};
-constexpr StringLiteral kOverwriteOnFullKey{"overwriteOnFull"};
-constexpr StringLiteral kNumberOfSlotsKey{"numberOfSlots"};
-constexpr StringLiteral kSlotSizeBytesKey{"slotSizeBytes"};
-constexpr StringLiteral kDatarouterUidKey{"datarouterUid"};
-constexpr StringLiteral kDynamicDatarouterIdentifiersKey{"dynamicDatarouterIdentifiers"};
+constexpr const char* kEcuIdKey{"ecuId"};
+constexpr const char* kAppIdKey{"appId"};
+constexpr const char* kAppDescriptionKey{"appDesc"};
+constexpr const char* kLogFilePathKey{"logFilePath"};
+constexpr const char* kLogModeKey{"logMode"};
+constexpr const char* kLogLevelKey{"logLevel"};
+constexpr const char* kLogLevelThresholdConsoleKey{"logLevelThresholdConsole"};
+constexpr const char* kContextConfigsKey{"contextConfigs"};
+constexpr const char* kContextNameKey{"name"};
+constexpr const char* kStackBufferSizeKey{"stackBufferSize"};
+constexpr const char* kRingBufferSizeKey{"ringBufferSize"};
+constexpr const char* kOverwriteOnFullKey{"overwriteOnFull"};
+constexpr const char* kNumberOfSlotsKey{"numberOfSlots"};
+constexpr const char* kSlotSizeBytesKey{"slotSizeBytes"};
+constexpr const char* kDatarouterUidKey{"datarouterUid"};
+constexpr const char* kDynamicDatarouterIdentifiersKey{"dynamicDatarouterIdentifiers"};
 
 // Suppress Coverity warning because:
 // 1. 'constexpr' cannot be used with std::unordered_map.
@@ -90,7 +89,7 @@ template <typename ResultType, typename AsType = ResultType>
 class GetElementAsImpl;
 
 template <typename ResultType, typename AsType = ResultType>
-auto GetElementAs(const score::json::Object& obj, const StringLiteral key) noexcept
+auto GetElementAs(const score::json::Object& obj, const char* key) noexcept
 {
     // To prevent using function template specializations, we use class template specialization in the implementation of
     // GetElementAs()
@@ -101,7 +100,7 @@ template <typename ResultType, typename AsType>
 class GetElementAsImpl
 {
   public:
-    static score::Result<ResultType> GetElementAs(const score::json::Object& obj, const StringLiteral key) noexcept
+    static score::Result<ResultType> GetElementAs(const score::json::Object& obj, const char* key) noexcept
     {
         const auto find_result = obj.find(key);
         if (find_result == obj.end())
@@ -115,7 +114,7 @@ class GetElementAsImpl
 
 template <typename T>
 score::Result<std::reference_wrapper<const T>> GetElementAsRef(const score::json::Object& obj,
-                                                             const StringLiteral key) noexcept
+                                                             const char* key) noexcept
 {
     return GetElementAs<std::reference_wrapper<const T>, T>(obj, key);
 }
@@ -128,7 +127,7 @@ template <typename T>
 // std::terminate() will not  implicitly be called from GetElementAndThen as it declared as noexcept.
 // coverity[autosar_cpp14_a15_5_3_violation]
 score::Result<void> GetElementAndThen(const score::json::Object& obj,
-                                    const StringLiteral key,
+                                    const char* key,
                                     GetElementCallback<T> update) noexcept
 {
     const auto parser_result = GetElementAs<T>(obj, key);
@@ -260,7 +259,7 @@ class GetElementAsImpl<LogLevel>
     // Suppress "AUTOSAR C++14 A15-5-3" rule findings: "The std::terminate() function shall not be called implicitly".
     // std::terminate() will not  implicitly be called from GetElementAs as it declared as noexcept.
     // coverity[autosar_cpp14_a15_5_3_violation]
-    static score::Result<LogLevel> GetElementAs(const score::json::Object& obj, const StringLiteral key) noexcept
+    static score::Result<LogLevel> GetElementAs(const score::json::Object& obj, const char* key) noexcept
     {
         const auto string_result = GetElementAsImpl<std::string_view>::GetElementAs(obj, key);
         if (string_result.has_value() == false)

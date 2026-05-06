@@ -13,8 +13,6 @@
 #ifndef SCORE_LIB_MEMORY_STRING_COMPARISON_ADAPTOR_H
 #define SCORE_LIB_MEMORY_STRING_COMPARISON_ADAPTOR_H
 
-#include "score/memory/string_literal.h"
-
 #include <score/string_view.hpp>
 
 #include <functional>
@@ -58,8 +56,8 @@ class StringComparisonAdaptor
     /// @brief Constructors for assignment of c-style strings
     /// This is mainly required for strings specified at compile time
     // NOLINTNEXTLINE(google-explicit-constructor): IMPLICIT CONVERSION JUSTIFICATION
-    StringComparisonAdaptor(const score::StringLiteral& c_str);
-    StringComparisonAdaptor& operator=(const score::StringLiteral& c_str);
+    StringComparisonAdaptor(const char* c_str);
+    StringComparisonAdaptor& operator=(const char* c_str);
 
     ~StringComparisonAdaptor() = default;
 
@@ -68,7 +66,7 @@ class StringComparisonAdaptor
     score::cpp::string_view GetAsStringView() const noexcept;
 
   private:
-    std::variant<std::string_view, std::string, score::StringLiteral> str_;
+    std::variant<std::string_view, std::string, const char*> str_;
 };
 
 /// @brief Compares the underlying content of the string/string_view.

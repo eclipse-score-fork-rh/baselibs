@@ -39,6 +39,7 @@ _FEATURES_TO_DISABLE = [
 
 def _openssl_transition_impl(settings, attr):
     current = list(settings["//command_line_option:features"])
+    current_copts = settings.get("//command_line_option:copt", [])
     updated = []
     for f in current:
         if f not in _FEATURES_TO_DISABLE:
@@ -46,12 +47,13 @@ def _openssl_transition_impl(settings, attr):
     updated.append("gnu11")
     return {
         "//command_line_option:features": updated,
+        "//command_line_option:copt": current_copts + ["-D_GNU_SOURCE"],
     }
 
 _openssl_transition = transition(
     implementation = _openssl_transition_impl,
-    inputs = ["//command_line_option:features"],
-    outputs = ["//command_line_option:features"],
+    inputs = ["//command_line_option:copt", "//command_line_option:features"],
+    outputs = ["//command_line_option:copt", "//command_line_option:features"],
 )
 
 def _openssl_library_impl(ctx):

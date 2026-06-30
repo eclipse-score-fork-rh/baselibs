@@ -131,3 +131,5 @@ build:clang_tidy --force_pic
 build:clang_tidy --incompatible_enable_cc_toolchain_resolution
 build:clang_tidy --output_groups=clang_tidy_output
 build:clang_tidy --verbose_failures
+
+try-import %workspace%/autosd.bazelrc

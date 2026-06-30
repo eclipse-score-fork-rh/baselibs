@@ -1,0 +1,15 @@
+build:_autosd-common --force_pic
+build:_autosd-common --@score_baselibs//src/log:safety_level=qm
+build:_autosd-common --@score_baselibs//score/json:base_library=nlohmann
+build:_autosd-common --@score_baselibs//score/memory/shared/flags:use_typedshmd=False
+build:_autosd-common --features=minimal_warnings --features=-strict_warnings --features=warnings_as_errors
+
+build:autosd-x86_64 --config=_autosd-common
+build:autosd-x86_64 --platforms=@score_bazel_platforms//:x86_64-linux-autosd10
+build:autosd-x86_64 --extra_toolchains=@score_autosd10_x86_64_toolchain//:x86_64-linux-autosd10
+build:autosd-x86_64 --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_unknown_linux_gnu
+
+build:autosd-aarch64 --config=_autosd-common
+build:autosd-aarch64 --platforms=@score_bazel_platforms//:aarch64-linux-autosd10
+build:autosd-aarch64 --extra_toolchains=@score_autosd10_aarch64_toolchain//:aarch-linux-autosd10
+build:autosd-aarch64 --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_linux_gnu
